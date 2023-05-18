@@ -1,26 +1,45 @@
-const int sensorTemperaturaPin = A0;
-const int ventiladorPin = 9;
-const int temperaturaUmbral = 25;
+// Pin del sensor de temperatura LM35
+const int pinLM35 = A0;
+// Pin de salida para controlar el transistor
+const int pinTransistor = 9;
+// Pin de salida para controlar el motor de 12V
+const int pinMotor = 10;
+
+// Umbral de temperatura en grados centígrados
+const float umbralTemperatura = 2.70;
 
 void setup() {
-  pinMode(ventiladorPin, OUTPUT);
+  // Configurar el pin del transistor como salida
+  pinMode(pinTransistor, OUTPUT);
+  // Configurar el pin del motor como salida
+  pinMode(pinMotor, OUTPUT);
+  // Inicializar comunicación serial
+  Serial.begin(9600);
 }
 
 void loop() {
-  int temperatura = obtenerTemperatura();
-
-  if (temperatura > temperaturaUmbral) {
-    digitalWrite(ventiladorPin, HIGH);
-    delay(1000);
+  // Leer el valor analógico del sensor de temperatura
+  int lecturaSensor = analogRead(pinLM35);
+  
+  // Convertir el valor leído a temperatura en grados centígrados
+  float temperatura = (lecturaSensor * 5.0 / 1023.0) * 100.0;
+  
+  // Imprimir la temperatura en el monitor serial
+  Serial.print("Temperatura: ");
+  Serial.print(temperatura);
+  Serial.println(" °C");
+  
+  // Comprobar si la temperatura supera el umbral
+  if (temperatura < umbralTemperatura) {
+    // Encender el motor
+    digitalWrite(pinTransistor, HIGH);
+    digitalWrite(pinMotor, HIGH);
   } else {
-    digitalWrite(ventiladorPin, LOW);
+    // Apagar el motor
+    digitalWrite(pinTransistor, LOW);
+    digitalWrite(pinMotor, LOW);
   }
-}
-
-int obtenerTemperatura() {
-  int lectura = analogRead(sensorTemperaturaPin);
-  float tension = lectura * (5.0 / 1023.0);
-  float temperatura = (tension - 0.5) * 100.0;
-
-  return (int)temperatura;
+  
+  // Esperar un segundo antes de realizar la siguiente lectura
+  delay(1000);
 }
