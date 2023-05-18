@@ -1,0 +1,26 @@
+const int sensorTemperaturaPin = A0;
+const int ventiladorPin = 9;
+const int temperaturaUmbral = 25;
+
+void setup() {
+  pinMode(ventiladorPin, OUTPUT);
+}
+
+void loop() {
+  int temperatura = obtenerTemperatura();
+
+  if (temperatura > temperaturaUmbral) {
+    digitalWrite(ventiladorPin, HIGH);
+    delay(1000);
+  } else {
+    digitalWrite(ventiladorPin, LOW);
+  }
+}
+
+int obtenerTemperatura() {
+  int lectura = analogRead(sensorTemperaturaPin);
+  float tension = lectura * (5.0 / 1023.0);
+  float temperatura = (tension - 0.5) * 100.0;
+
+  return (int)temperatura;
+}
